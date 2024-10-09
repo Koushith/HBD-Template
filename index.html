@@ -117,7 +117,7 @@
     <div id="heart-container"></div>
 
     <!-- Background music -->
-    <audio id="backgroundMusic" src="./assets/hbd.mp3" autoplay loop></audio>
+    <audio id="backgroundMusic" src="./assets/hbd.mp3" loop></audio>
 
     <!-- Instagram-like profile header -->
     <section class="text-center my-4 fade-in">
@@ -181,6 +181,21 @@
         document.getElementById("heart-container").appendChild(heart);
       }
 
+      // Function to play background music
+      function playBackgroundMusic() {
+        backgroundMusic.play().catch((error) => {
+          console.log("Autoplay prevented. User interaction required.");
+        });
+      }
+
+      // Try to play music when page loads
+      window.addEventListener("load", playBackgroundMusic);
+
+      // Play music when "Click here" button is pressed
+      document
+        .getElementById("playMusicPill")
+        .addEventListener("click", playBackgroundMusic);
+
       // Instagram-like Gallery
       const gallery = document.getElementById("gallery");
       const images = Array.from(
@@ -193,7 +208,10 @@
         img.src = src;
         img.alt = `Photo ${index + 1}`;
         img.className = "w-full h-40 object-cover rounded-lg shadow-md";
-        img.addEventListener("click", () => openModal(index));
+        img.addEventListener("click", () => {
+          openModal(index);
+          playBackgroundMusic(); // Play music when image is opened
+        });
         gallery.appendChild(img);
       });
 

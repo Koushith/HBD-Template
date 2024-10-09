@@ -85,9 +85,10 @@
       }
       .message {
         color: #fff;
-        margin-top: 20px;
-        font-size: 1.2rem;
+        margin-top: 10px;
+        font-size: 1.1rem;
         text-align: center;
+        padding: 5px;
       }
     </style>
   </head>
@@ -172,26 +173,56 @@
       const modal = document.getElementById("modal");
       const modalImg = document.getElementById("modalImg");
       let currentIndex = 0;
+      let startY = 0;
 
       function openModal(index) {
         currentIndex = index;
         modalImg.src = images[currentIndex];
         modal.style.display = "block";
         window.addEventListener("keydown", handleKeyNavigation);
+        modal.addEventListener("touchstart", handleTouchStart, {
+          passive: true,
+        });
+        modal.addEventListener("touchend", handleTouchEnd, { passive: true });
       }
 
       function closeModal() {
         modal.style.display = "none";
         window.removeEventListener("keydown", handleKeyNavigation);
+        modal.removeEventListener("touchstart", handleTouchStart);
+        modal.removeEventListener("touchend", handleTouchEnd);
       }
 
       function handleKeyNavigation(e) {
         if (e.key === "ArrowUp") {
-          currentIndex = (currentIndex - 1 + images.length) % images.length;
+          showPrevious();
         } else if (e.key === "ArrowDown") {
-          currentIndex = (currentIndex + 1) % images.length;
+          showNext();
         }
+      }
+
+      function showNext() {
+        currentIndex = (currentIndex + 1) % images.length;
         modalImg.src = images[currentIndex];
+      }
+
+      function showPrevious() {
+        currentIndex = (currentIndex - 1 + images.length) % images.length;
+        modalImg.src = images[currentIndex];
+      }
+
+      // Touch Swipe Events for Phones
+      function handleTouchStart(e) {
+        startY = e.touches[0].clientY;
+      }
+
+      function handleTouchEnd(e) {
+        const endY = e.changedTouches[0].clientY;
+        if (startY - endY > 50) {
+          showNext(); // Swipe up
+        } else if (endY - startY > 50) {
+          showPrevious(); // Swipe down
+        }
       }
 
       // Video Modal and Surprise Button
@@ -200,8 +231,7 @@
       const backgroundMusic = document.getElementById("backgroundMusic");
 
       document.getElementById("surpriseBtn").addEventListener("click", () => {
-        // Pause background music
-        backgroundMusic.pause();
+        backgroundMusic.pause(); // Pause background music
         videoModal.classList.add("active");
         wishVideo.play();
       });

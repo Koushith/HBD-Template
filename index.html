@@ -183,6 +183,7 @@
         modal.addEventListener("touchstart", handleTouchStart, {
           passive: true,
         });
+        modal.addEventListener("touchmove", handleTouchMove, { passive: true });
         modal.addEventListener("touchend", handleTouchEnd, { passive: true });
       }
 
@@ -190,6 +191,7 @@
         modal.style.display = "none";
         window.removeEventListener("keydown", handleKeyNavigation);
         modal.removeEventListener("touchstart", handleTouchStart);
+        modal.removeEventListener("touchmove", handleTouchMove);
         modal.removeEventListener("touchend", handleTouchEnd);
       }
 
@@ -216,12 +218,21 @@
         startY = e.touches[0].clientY;
       }
 
+      function handleTouchMove(e) {
+        e.preventDefault(); // Prevent default scrolling behavior
+      }
+
       function handleTouchEnd(e) {
         const endY = e.changedTouches[0].clientY;
-        if (startY - endY > 50) {
-          showNext(); // Swipe up
-        } else if (endY - startY > 50) {
-          showPrevious(); // Swipe down
+        const deltaY = startY - endY;
+
+        if (Math.abs(deltaY) > 50) {
+          // Threshold for swipe detection
+          if (deltaY > 0) {
+            showNext(); // Swipe up
+          } else {
+            showPrevious(); // Swipe down
+          }
         }
       }
 

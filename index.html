@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Happy Birthday, My Love!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        background-color: #fafafa;
+        font-family: Arial, sans-serif;
+      }
+      .floating-heart {
+        position: absolute;
+        width: 30px;
+        height: 30px;
+        background: url("./assets/heart.png") no-repeat center;
+        background-size: contain;
+        animation: float 10s linear infinite;
+        opacity: 0.7;
+      }
+      .profile-pic {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        border: 2px solid #ff598a;
+        box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+      }
+      .gallery img:hover {
+        transform: scale(1.05);
+      }
+      .modal-view {
+        position: fixed;
+        top: 10%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80vw;
+        max-width: 600px;
+        background: white;
+        padding: 16px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        display: none;
+        z-index: 10;
+      }
+      .modal-view img {
+        width: 100%;
+        height: auto;
+        border-radius: 10px;
+      }
+      .back-btn {
+        cursor: pointer;
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 10px;
+        padding: 8px;
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 20;
+      }
+      .video-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease;
+        z-index: 20;
+      }
+      .video-modal.active {
+        opacity: 1;
+        visibility: visible;
+      }
+      .video-modal video {
+        width: 80%;
+        max-width: 600px;
+        border-radius: 10px;
+      }
+      .message {
+        color: #fff;
+        margin-top: 20px;
+        font-size: 1.2rem;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body class="flex flex-col items-center p-6 relative">
+    <!-- Floating hearts -->
+    <div id="heart-container"></div>
+
+    <!-- Background music -->
+    <audio id="backgroundMusic" src="./assets/hbd.mp3" autoplay loop></audio>
+
+    <!-- Instagram-like profile header -->
+    <section class="text-center my-4 fade-in">
+      <img
+        src="./assets/1.jpg"
+        alt="Profile Pic"
+        class="profile-pic mx-auto object-cover"
+      />
+      <h1 class="text-2xl font-bold text-pink-600 mt-2">
+        Happy Birthday, My Love!
+      </h1>
+      <p class="text-gray-600">Counting the moments with you. 💖</p>
+    </section>
+
+    <!-- Gallery grid -->
+    <section
+      id="gallery"
+      class="gallery grid grid-cols-3 gap-2 p-4 fade-in max-w-screen-lg"
+    ></section>
+
+    <!-- Modal for Instagram Story-like View -->
+    <div id="modal" class="modal-view">
+      <div class="back-btn" onclick="closeModal()">Back</div>
+      <img id="modalImg" src="" alt="Current Image" />
+    </div>
+
+    <!-- Video Modal for Surprise Button -->
+    <div id="videoModal" class="video-modal">
+      <video id="wishVideo" controls>
+        <source src="./assets/wish.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+      <div class="message">
+        You’re my everything! 💖 Here's to many more memories together.
+      </div>
+    </div>
+
+    <!-- Surprise Button -->
+    <button
+      id="surpriseBtn"
+      class="mt-8 px-6 py-2 bg-pink-500 text-white rounded-full hover:bg-pink-600 transition duration-300"
+    >
+      🎉 Tap for a Surprise!
+    </button>
+
+    <script>
+      // Floating Hearts Animation
+      for (let i = 0; i < 15; i++) {
+        const heart = document.createElement("div");
+        heart.className = "floating-heart";
+        heart.style.left = Math.random() * 100 + "vw";
+        heart.style.animationDelay = Math.random() * 3 + "s";
+        document.getElementById("heart-container").appendChild(heart);
+      }
+
+      // Instagram-like Gallery
+      const gallery = document.getElementById("gallery");
+      const images = Array.from(
+        { length: 25 },
+        (_, i) => `/assets/${i + 1}.jpg`
+      );
+
+      images.forEach((src, index) => {
+        const img = document.createElement("img");
+        img.src = src;
+        img.alt = `Photo ${index + 1}`;
+        img.className = "w-full h-40 object-cover rounded-lg shadow-md";
+        img.addEventListener("click", () => openModal(index));
+        gallery.appendChild(img);
+      });
+
+      // Modal for Story-like View
+      const modal = document.getElementById("modal");
+      const modalImg = document.getElementById("modalImg");
+      let currentIndex = 0;
+
+      function openModal(index) {
+        currentIndex = index;
+        modalImg.src = images[currentIndex];
+        modal.style.display = "block";
+        window.addEventListener("keydown", handleKeyNavigation);
+      }
+
+      function closeModal() {
+        modal.style.display = "none";
+        window.removeEventListener("keydown", handleKeyNavigation);
+      }
+
+      function handleKeyNavigation(e) {
+        if (e.key === "ArrowUp") {
+          currentIndex = (currentIndex - 1 + images.length) % images.length;
+        } else if (e.key === "ArrowDown") {
+          currentIndex = (currentIndex + 1) % images.length;
+        }
+        modalImg.src = images[currentIndex];
+      }
+
+      // Video Modal and Surprise Button
+      const videoModal = document.getElementById("videoModal");
+      const wishVideo = document.getElementById("wishVideo");
+      const backgroundMusic = document.getElementById("backgroundMusic");
+
+      document.getElementById("surpriseBtn").addEventListener("click", () => {
+        // Pause background music
+        backgroundMusic.pause();
+        videoModal.classList.add("active");
+        wishVideo.play();
+      });
+
+      // Close video modal when video ends and resume background music
+      wishVideo.addEventListener("ended", () => {
+        videoModal.classList.remove("active");
+        wishVideo.pause();
+        wishVideo.currentTime = 0;
+        backgroundMusic.play(); // Resume background music
+      });
+    </script>
+  </body>
+</html>
